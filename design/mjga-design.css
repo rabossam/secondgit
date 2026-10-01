@@ -1,0 +1,620 @@
+/* ==========================================================================
+   MJGA Work 4 · 디자인 CSS
+   --------------------------------------------------------------------------
+   runtime/workbook.css 를 읽기 쉽게 풀어 쓰고, 디자인 토큰으로 정리한 파일입니다.
+   클래스 이름은 src/render.cjs · runtime/workbook.js 가 만드는 HTML 과 같아서
+   runtime/workbook.css 자리에 그대로 바꿔 넣을 수 있습니다.
+
+   목차
+     1. 토큰 (색 · 글꼴 · 간격 · 크기)
+     2. 기본 요소
+     3. 폼 요소 (버튼 · 입력 · 파일 선택)
+     4. 레이아웃 (워크북 · 히어로 · 섹션)
+     5. 진행률 · 탭 · 타이머
+     6. 읽기 콘텐츠 (본문 · 수식 · 표 · 출처 · 인용)
+     7. 문제 · 답안 · 입력 묶음
+     8. 성찰 · 척도
+     9. 제출 · 대화상자 · 보조
+    10. 반응형 (모바일)
+    11. 접근성 (움직임 줄이기 · 강제 색상)
+    12. 인쇄
+   ========================================================================== */
+
+
+/* 1. 토큰 ------------------------------------------------------------- */
+:root {
+  color-scheme: light dark;
+
+  /* 색: 종이 같은 바탕 + 숲 녹색 하나만 강조색으로 씁니다 */
+  --paper: #ffffff;
+  --bg: #f3f1eb;
+  --bg-soft: #edf2eb;
+  --bg-tint: #f4f6f0;
+  --bg-field: #fffdf7;
+  --bg-note: #fbf4e6;
+
+  --ink: #262e2b;
+  --muted: #53605a;
+  --line: #bdc5bc;
+  --line-strong: #7a897e;
+
+  --accent: #285846;
+  --accent-ink: #ffffff;
+  --link: #155d54;
+  --warning: #7a3422;
+  --note: #92723b;
+  --focus: #155db1;
+  --progress-track: #d6ded3;
+  --shadow: 0 8px 32px #27312b0a;
+
+  /* 글꼴 */
+  --font-sans: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-serif: "Batang", "Noto Serif KR", serif;
+  --font-mono: Consolas, "D2Coding", "Malgun Gothic", monospace;
+
+  /* 글자 크기 */
+  --text-xs: 0.73rem;
+  --text-sm: 0.82rem;
+  --text-base: 0.94rem;
+  --text-md: 1.03rem;
+  --text-lg: 1.55rem;
+  --text-xl: 2.05rem;
+
+  /* 간격 · 크기 */
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 20px;
+  --space-5: 34px;
+  --space-6: 54px;
+  --radius: 5px;
+  --tap: 44px;               /* 손가락으로 누르기 좋은 최소 높이 */
+  --page-width: 980px;
+  --pad-x: var(--space-6);   /* 섹션 좌우 여백 (모바일에서 줄어듭니다) */
+
+  font-family: var(--font-sans);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1d2420;
+    --bg: #121714;
+    --bg-soft: #26302a;
+    --bg-tint: #222b26;
+    --bg-field: #232c27;
+    --bg-note: #2f2a1c;
+
+    --ink: #e6ece7;
+    --muted: #a6b3ab;
+    --line: #3d4a42;
+    --line-strong: #6b7d71;
+
+    --accent: #6fbf99;
+    --accent-ink: #0f1a14;
+    --link: #8fd3bb;
+    --warning: #ff9d84;
+    --note: #d3b06a;
+    --focus: #7db4ff;
+    --progress-track: #36423a;
+    --shadow: none;
+  }
+}
+
+
+/* 2. 기본 요소 --------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+h1 { font-size: var(--text-xl); line-height: 1.4; letter-spacing: -0.045em; margin: 16px 0; }
+h2 { font-size: var(--text-lg); line-height: 1.5; letter-spacing: -0.03em; margin: 0 0 18px; }
+h3 { font-size: 1.05rem; line-height: 1.65; margin: 0; }
+p  { margin: 12px 0 18px; }
+
+a { color: var(--link); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+
+pre {
+  margin: 0;
+  font: 0.9rem/1.8 var(--font-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+figure pre code { font: inherit; }
+
+blockquote { margin: 24px 0; padding: 15px 20px; border-left: 3px solid var(--line); }
+cite { display: block; font-size: var(--text-sm); font-style: normal; }
+
+.fine { font-size: var(--text-sm); color: var(--muted); line-height: 1.7; }
+
+[hidden] { display: none !important; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+button, input, textarea, select, a, summary { scroll-margin: 24px; }
+
+
+/* 3. 폼 요소 ----------------------------------------------------------- */
+button, input, textarea, select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+button,
+.file-button {
+  min-height: var(--tap);
+  padding: 8px var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+button:hover,
+.file-button:hover { background: var(--bg-soft); }
+button:disabled { cursor: default; opacity: 0.55; }
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+button.primary:hover { filter: brightness(1.08); }
+
+input[type=text],
+input[type=number],
+textarea,
+select {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font-size: var(--text-base);
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+textarea { min-height: 150px; line-height: 1.8; resize: vertical; }
+textarea[data-answer] { background: var(--bg-field); }
+
+label { font-size: 0.84rem; }
+label > input,
+label > select { display: block; margin-top: var(--space-1); }
+
+.file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+}
+.file-button input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.file-button:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+
+/* 4. 레이아웃 ---------------------------------------------------------- */
+.workbook {
+  max-width: var(--page-width);
+  margin: 32px auto 70px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.hero,
+.stage,
+.submission,
+.optional { padding: var(--space-5) var(--pad-x); }
+
+.hero { padding-top: 44px; border-top: 5px solid var(--accent); }
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.issue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.deck { font-size: 1.08rem; color: var(--muted); }
+
+/* 오늘의 요약 (dl) */
+dl.today { margin: 24px 0 0; border-top: 1px solid var(--line); }
+dl div { padding: 12px 0; border-bottom: 1px solid var(--line); }
+dt { font-size: var(--text-sm); font-weight: 700; color: var(--accent); }
+dd { margin: 2px 0; font-size: 1rem; }
+
+.archive-note {
+  padding: var(--space-3) 18px;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  background: var(--bg-note);
+  border-left: 3px solid var(--note);
+}
+
+/* 출처 · 버전 정보 */
+.metadata { margin-top: 24px; font-size: 0.85rem; }
+.metadata dd { font-size: 0.85rem; }
+.metadata li { margin: 6px 0; }
+.metadata dl div { display: grid; grid-template-columns: 105px 1fr; gap: 16px; }
+
+.metadata summary,
+details summary { cursor: pointer; min-height: var(--tap); padding: 8px 0; font-weight: 700; }
+
+.optional { border-top: 1px solid var(--line); background: var(--bg-tint); }
+.optional > summary { font-size: 1rem; }
+
+
+/* 5. 진행률 · 탭 · 타이머 ---------------------------------------------- */
+.progress-area {
+  padding: 18px var(--pad-x);
+  background: var(--bg-soft);
+  border-block: 1px solid var(--line);
+}
+.progress-caption { display: flex; justify-content: space-between; font-size: var(--text-sm); }
+.progress-caption strong { font-weight: 600; }
+
+progress {
+  display: block;
+  width: 100%;
+  height: 10px;
+  margin: 8px 0;
+  accent-color: var(--accent);
+}
+progress::-webkit-progress-bar   { background: var(--progress-track); border-radius: 10px; }
+progress::-webkit-progress-value { background: var(--accent); border-radius: 10px; }
+progress::-moz-progress-bar      { background: var(--accent); border-radius: 10px; }
+
+.storage-status { margin: 8px 0 0; font-size: var(--text-sm); }
+.storage-status.error,
+.save-help.error { color: var(--warning); font-weight: 700; }
+
+/* 6단계 탭 */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-tint);
+}
+.tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 7px;
+  min-height: 100px;
+  padding: 15px 12px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  text-align: left;
+}
+.tabs button:last-child { border-right: 0; }
+.tabs button span { font-size: var(--text-sm); font-weight: 700; }
+.tabs button[aria-selected=true] { background: var(--accent); color: var(--accent-ink); }
+.tabs button.done span::after { content: " · 완료"; }
+
+.stage-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.stage-heading .eyebrow { margin-bottom: var(--space-1); }
+.stage-intro { margin-top: 24px; }
+.time-budget { padding-top: 8px; font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+
+.timer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 24px 0 30px;
+  padding: 12px var(--space-3);
+  background: var(--bg-soft);
+}
+.timer-controls button { min-height: 40px; padding: 7px 11px; font-size: var(--text-sm); }
+.timer-controls .fine { flex-basis: 100%; margin: 0; }
+.timer {
+  min-width: 62px;
+  font-family: var(--font-mono);
+  font-size: 1.12rem;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* 6. 읽기 콘텐츠 ------------------------------------------------------- */
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  line-height: 1.95;
+  white-space: pre-line;
+}
+.citations { font-family: var(--font-sans); font-size: var(--text-xs); }
+
+.formula,
+.code {
+  margin: 24px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  background: var(--bg-tint);
+}
+.formula figcaption,
+.code figcaption {
+  margin-bottom: 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.table-wrap { overflow-x: auto; margin: 24px 0; border: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+caption { padding: 12px 16px; text-align: left; font-weight: 700; background: var(--bg-soft); }
+th, td { padding: 10px 12px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line); }
+thead { background: var(--bg-tint); }
+tbody tr:last-child th,
+tbody tr:last-child td { border-bottom: 0; }
+
+.source-card {
+  margin: 24px 0;
+  padding: 18px 20px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-soft);
+}
+.source-card p { margin: 8px 0; font-size: 0.88rem; }
+.source-card .eyebrow { font-size: var(--text-xs); }
+.source-card h3 { font-size: 0.98rem; }
+
+
+/* 7. 문제 · 답안 · 입력 묶음 ------------------------------------------- */
+.question { margin: 32px 0; padding: 26px 0 30px; border-block: 1px solid var(--line); }
+.question + .question { padding-top: 2px; border-top: 0; }
+.question-heading { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.question-heading .fine { padding-top: 4px; white-space: nowrap; }
+
+.answer-label { display: block; margin: var(--space-4) 0 var(--space-1); font-size: var(--text-sm); font-weight: 700; }
+.question-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.question-tools button { font-size: 0.82rem; }
+.save-help { margin: var(--space-1) 0 12px; }
+
+.first-record { margin-top: 16px; padding: 8px 16px; border: 1px solid var(--line); background: var(--bg-soft); }
+.first-record summary { font-size: 0.85rem; }
+.first-record pre { max-height: 280px; margin-bottom: 12px; overflow-y: auto; }
+
+/* fieldset 묶음 */
+.context,
+.record,
+.path-picker { margin: 26px 0; padding: 16px 20px; border: 1px solid var(--line); }
+.context legend,
+.record legend,
+.path-picker legend { padding: 0 8px; font-size: 0.85rem; font-weight: 700; }
+
+.form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+
+.path-picker label { display: block; min-height: var(--tap); padding: 7px 0; font-size: 0.92rem; }
+.path-picker input {
+  display: inline;
+  width: 18px;
+  height: 18px;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+  accent-color: var(--accent);
+}
+.record > label { display: block; margin-top: 16px; }
+
+.retrieval-note {
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  background: var(--bg-note);
+  border-left: 3px solid var(--note);
+}
+
+/* 단계 하단: 완료 체크 + 이전/다음 */
+.stage-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-4); margin-top: 32px; }
+.complete-label { display: flex; align-items: center; gap: var(--space-2); min-height: var(--tap); font-size: 0.92rem; }
+.complete-label input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.step-navigation { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+
+/* 8. 성찰 · 척도 ------------------------------------------------------- */
+.reflection { margin: 26px 0; padding: 16px 20px; border: 1px solid var(--line); background: var(--paper); }
+.reflection > legend { padding: 0 8px; font-size: 0.85rem; font-weight: 700; }
+.reflection > label,
+.reflection-part > label { display: block; }
+.reflection > label { margin-top: 16px; }
+.reflection-part > label { margin-top: 4px; }
+.reflection-part { margin-top: 14px; padding-top: 4px; border-top: 1px solid var(--line); }
+.reflection-part h3 { margin: 12px 0 0; font-size: 1rem; }
+
+.scale { margin: 14px 0; padding: 0; border: 0; }
+.scale legend { padding: 0; font-size: 0.86rem; color: var(--ink); }
+.scale-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-1); }
+.scale-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap);
+  padding: 6px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.scale-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.scale-option:has(input:checked) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.scale-option:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.scale-clear { min-height: var(--tap); font-size: var(--text-sm); }
+
+
+/* 9. 제출 · 대화상자 · 보조 -------------------------------------------- */
+.submission { border-top: 2px solid var(--accent); background: var(--bg-tint); }
+.submission p { font-size: 0.9rem; }
+.submission-tools { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+#action-status { min-height: 26px; color: var(--accent); font-weight: 600; }
+
+dialog {
+  max-width: min(760px, 90vw);
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+dialog::backdrop { background: #0006; }
+dialog textarea { margin: 10px 0 18px; }
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px;
+  background: var(--paper);
+  transform: translateY(-150%);
+}
+.skip-link:focus { transform: none; }
+
+
+/* 10. 반응형 ------------------------------------------------------------ */
+@media (max-width: 700px) {
+  :root { --pad-x: 22px; }
+
+  .workbook { margin: 0; border-inline: 0; box-shadow: none; }
+  .hero,
+  .stage,
+  .submission,
+  .optional { padding-block: 26px; }
+  .hero { padding-top: 30px; }
+  .progress-area { padding-block: var(--space-3); }
+
+  h1 { font-size: 1.65rem; }
+  h2 { font-size: 1.3rem; }
+
+  .tabs { grid-template-columns: repeat(3, 1fr); }
+  .tabs button { min-height: 98px; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+  .tabs button:nth-child(3) { border-right: 0; }
+
+  .form-grid { grid-template-columns: 1fr; }
+  .question-heading { gap: var(--space-2); }
+  .question-heading h3 { font-size: 1rem; }
+  .table-wrap { margin-inline: 0; }
+
+  .timer-controls { padding: 12px var(--space-2); gap: 8px; }
+  .timer-controls button { padding: 7px 9px; }
+
+  .stage-bottom { align-items: start; }
+  .step-navigation { width: 100%; }
+  .step-navigation button { flex: 1; }
+
+  .source-card,
+  .formula,
+  .code { padding: var(--space-3); }
+
+  .metadata dl div { grid-template-columns: 90px 1fr; gap: 8px; }
+  .submission-tools > button,
+  .file-button { flex: 1 1 150px; justify-content: center; }
+  .prose { font-size: 1rem; }
+}
+
+
+/* 11. 접근성 ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+@media (forced-colors: active) {
+  body,
+  .workbook,
+  .hero,
+  .stage,
+  .submission,
+  .optional,
+  .tabs,
+  .source-card,
+  .formula,
+  .code,
+  .context,
+  .first-record,
+  .retrieval-note,
+  .reflection,
+  .timer-controls,
+  .progress-area { background: Canvas; color: CanvasText; box-shadow: none; }
+
+  .tabs button[aria-selected=true],
+  button.primary {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    border: 2px solid Highlight;
+  }
+  .tabs button[aria-selected=false] { border: 1px solid ButtonText; }
+
+  input, textarea, select { border: 1px solid ButtonText; background: Field; color: FieldText; }
+
+  .scale-option { background: Canvas; color: CanvasText; border: 1px solid CanvasText; }
+  .scale-option:has(input:checked) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  .fine,
+  .eyebrow,
+  .storage-status.error,
+  .save-help.error,
+  #action-status { color: CanvasText; }
+
+  :focus-visible { outline: 3px solid Highlight; }
+  progress { forced-color-adjust: auto; border: 1px solid CanvasText; }
+}
+
+
+/* 12. 인쇄 -------------------------------------------------------------- */
+@media print {
+  :root { color-scheme: light; --paper: #fff; --ink: #000; --muted: #333; --line: #999; }
+
+  .tabs,
+  .timer-controls,
+  .question-tools,
+  .submission-tools,
+  .skip-link,
+  .progress-area { display: none; }
+
+  body { background: #fff; }
+  .workbook { margin: 0; border: 0; box-shadow: none; }
+  .stage[hidden] { display: block !important; }
+  .stage,
+  .hero,
+  .submission,
+  .optional { padding: 20px; }
+  .optional[open] { break-before: page; }
+  textarea { min-height: 120px; }
+  .question { break-inside: avoid; }
+}
